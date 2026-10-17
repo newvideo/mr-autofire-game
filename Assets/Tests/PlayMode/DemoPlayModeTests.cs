@@ -3,12 +3,32 @@ using NUnit.Framework;
 using Polyus.Monetization;
 using UnityEngine;
 using UnityEngine.TestTools;
+using UnityEngine.EventSystems;
 
 namespace Polyus.Tests
 {
     public sealed class DemoPlayModeTests
     {
         private GameObject root;
+        [UnityTest]
+        public IEnumerator HeldMovementButtonMovesAstronautWithoutRepeatedPhysicsToggles()
+        {
+            root = new GameObject("Movement under test");
+            var demo = root.AddComponent<PolyusPrototype>();
+            yield return null;
+            demo.BeginRun();
+            var body = GameObject.Find("Astronaut").GetComponent<Rigidbody2D>();
+            var right = root.transform.Find("POLYUS Interface/Device safe area/Gameplay HUD/>").GetComponent<PolyusControl>();
+            var pointer = new PointerEventData(EventSystem.current) { pointerId = 42 };
+            right.OnPointerDown(pointer);
+            float start = body.position.x;
+            for (int i = 0; i < 5; i++) yield return new WaitForFixedUpdate();
+            right.OnPointerUp(pointer);
+            Assert.That(body.position.x - start, Is.InRange(.7f, 1.3f),
+                "Holding movement for 0.1 seconds should travel about one world unit.");
+            Assert.That(body.simulated, Is.True);
+            Assert.That(body.gravityScale, Is.GreaterThan(0));
+        }
         [UnityTest]
         public IEnumerator DemoLoadsArtAndSwitchesBetweenMenuCombatAndPause()
         {

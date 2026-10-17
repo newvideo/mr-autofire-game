@@ -6,6 +6,10 @@ namespace Polyus
     public static class PolyusRunRules
     {
         public const int RoomCount = 3;
+        public const string DemoVersion = "0.2.1";
+        public const float MoveSpeed = 10f;
+        public const float JumpSpeed = 14.2f;
+        public const float GravityScale = 3.2f;
         public static int EnemyCount(int room) => room == 0 ? 4 : room == 1 ? 5 : room == 2 ? 1 : 0;
         public static int ArmorBonus(int rarity) => rarity == 0 ? 20 : rarity == 1 ? 40 : 70;
         public static int WeaponBonus(int rarity) => rarity == 0 ? 3 : rarity == 1 ? 6 : 10;

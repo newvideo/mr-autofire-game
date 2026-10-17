@@ -1,6 +1,6 @@
 # Installation
 
-Download **Polyus-Demo-0.2.unitypackage**, then in your existing Unity 6.6
+Download **Polyus-Demo-0.2.1.unitypackage**, then in your existing Unity 6.6
 Universal 2D project choose **Assets → Import Package → Custom Package**.
 Import all selected assets. The welcome window opens the included demo scene.
 Press **Play** and start a run. No manual file selection or object wiring needed.
@@ -17,3 +17,10 @@ be executed in the Editor because Unity is not available in the cloud workspace.
 
 Rebuild: `python Tools/package_unity.py`. The script verifies every packaged
 asset and metadata payload against the current source tree.
+
+## 0.2.1 movement update
+
+Movement speed: 6.5 → 10 units/sec. Jump impulse: 11 → 14.2 units/sec,
+so the first platform is reachable from the floor under the default gravity.
+Physics simulation is toggled only when its state changes. Movement arrows
+now fit their labels. The footer shows 0.2.1 to identify the installed version.

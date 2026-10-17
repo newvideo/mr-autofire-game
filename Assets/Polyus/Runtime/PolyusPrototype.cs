@@ -134,10 +134,16 @@ namespace Polyus
 
         public void SetExternalBlocked(bool blocked)
         {
+            if (externallyBlocked == blocked) return;
             externallyBlocked = blocked;
             ApplySimulation();
         }
-        private void ApplySimulation() { if (body != null) body.simulated = !IsBlocked; }
+        private void ApplySimulation()
+        {
+            if (body == null) return;
+            bool shouldSimulate = !IsBlocked;
+            if (body.simulated != shouldSimulate) body.simulated = shouldSimulate;
+        }
         public void RequestJump() => jumpQueued = true;
         public void RequestFlip() => flipQueued = true;
         public void RestartRun() => BeginRun();
@@ -264,7 +270,7 @@ namespace Polyus
         {
             body.position = new Vector2(-7.8f, -3.65f);
             body.linearVelocity = Vector2.zero;
-            gravitySign = 1; body.gravityScale = 3.2f;
+            gravitySign = 1; body.gravityScale = PolyusRunRules.GravityScale;
             hero.flipX = hero.flipY = false;
             flipTimer = 0; move = 0; jumpQueued = flipQueued = false;
         }
@@ -292,16 +298,13 @@ namespace Polyus
             if (body == null || IsBlocked) return;
             var keyboard = Keyboard.current;
             if (keyboard != null && keyboard.escapeKey.wasPressedThisFrame) { Pause(); return; }
-            move = ui.Move;
+            move = ReadMovement();
             if (keyboard != null)
             {
-                move += (keyboard.dKey.isPressed || keyboard.rightArrowKey.isPressed ? 1 : 0)
-                    - (keyboard.aKey.isPressed || keyboard.leftArrowKey.isPressed ? 1 : 0);
                 jumpQueued |= keyboard.spaceKey.wasPressedThisFrame;
                 flipQueued |= keyboard.gKey.wasPressedThisFrame;
             }
             jumpQueued |= ui.ConsumeJump(); flipQueued |= ui.ConsumeFlip();
-            move = Mathf.Clamp(move, -1, 1);
             runTime += Time.deltaTime; roomTime += Time.deltaTime;
             hurtTimer -= Time.deltaTime; flipTimer -= Time.deltaTime; fireTimer -= Time.deltaTime;
             hero.color = hurtTimer > 0 && Mathf.Sin(Time.time * 35) > 0 ? new Color(.45f, 1, 1, .5f) : Color.white;
@@ -334,16 +337,28 @@ namespace Polyus
             if (body == null || IsBlocked) return;
             if (flipQueued && flipTimer <= 0)
             {
-                gravitySign *= -1; body.gravityScale = 3.2f * gravitySign;
+                gravitySign *= -1; body.gravityScale = PolyusRunRules.GravityScale * gravitySign;
                 body.linearVelocity = new Vector2(body.linearVelocity.x, 0);
                 flipTimer = .45f; audioPlayer.Flip(); shake = .045f;
                 Burst(body.position, PolyusArt.Cyan, 18, 3.5f);
             }
             flipQueued = false;
             bool grounded = Physics2D.BoxCast(body.position, new Vector2(.5f, .08f), 0, Vector2.down * gravitySign, .59f, WorldMask);
-            body.linearVelocity = new Vector2(move * 6.5f, jumpQueued && grounded ? 11 * gravitySign : body.linearVelocity.y);
+            body.linearVelocity = new Vector2(ReadMovement() * PolyusRunRules.MoveSpeed,
+                jumpQueued && grounded ? PolyusRunRules.JumpSpeed * gravitySign : body.linearVelocity.y);
             if (jumpQueued && grounded) Burst(body.position + Vector2.down * gravitySign * .5f, PolyusArt.Cyan, 5, 2);
             jumpQueued = false;
+        }
+        private float ReadMovement()
+        {
+            float input = ui.Move;
+            var keyboard = Keyboard.current;
+            if (keyboard != null)
+            {
+                input += (keyboard.dKey.isPressed || keyboard.rightArrowKey.isPressed ? 1 : 0)
+                    - (keyboard.aKey.isPressed || keyboard.leftArrowKey.isPressed ? 1 : 0);
+            }
+            return Mathf.Clamp(input, -1, 1);
         }
 
         private void UpdateEnemies()

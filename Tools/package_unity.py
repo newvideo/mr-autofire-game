@@ -6,7 +6,7 @@ import io
 import tarfile
 
 ROOT = Path(__file__).resolve().parents[1]
-OUTPUT = ROOT / 'Releases/Polyus-Demo-0.2.unitypackage'
+OUTPUT = ROOT / 'Releases/Polyus-Demo-0.2.1.unitypackage'
 
 
 def collect():

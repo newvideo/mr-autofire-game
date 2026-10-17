@@ -16,7 +16,7 @@ namespace Polyus.Editor
             {
                 if (EditorApplication.isPlayingOrWillChangePlaymode || !File.Exists(ScenePath)) return;
                 EnsureArtImported();
-                string key = "Polyus.Demo.0.2.Welcome:" + Application.dataPath;
+                string key = "Polyus.Demo." + PolyusRunRules.DemoVersion + ".Welcome:" + Application.dataPath;
                 if (!EditorPrefs.GetBool(key, false))
                 {
                     EditorPrefs.SetBool(key, true);
@@ -56,7 +56,7 @@ namespace Polyus.Editor
     {
         public static void ShowWindow()
         {
-            var window = GetWindow<PolyusWelcome>(true, "ПОЛЮС · демоверсия 0.2", true);
+            var window = GetWindow<PolyusWelcome>(true, "ПОЛЮС · демоверсия " + PolyusRunRules.DemoVersion, true);
             window.minSize = new Vector2(540, 340);
         }
         private void OnGUI()

@@ -140,8 +140,8 @@ namespace Polyus
             Text(bossPanel, "СТРАЖ ПОЛЮСА", new Vector2(0, 15), new Vector2(600, 30), 22, PolyusArt.Orange);
             bossFill = Bar(bossPanel, new Vector2(0, -15), new Vector2(600, 13), PolyusArt.Orange);
             bossPanel.gameObject.SetActive(false);
-            left = Hold("‹", new Vector2(90, 102), new Vector2(0, 0));
-            right = Hold("›", new Vector2(235, 102), new Vector2(0, 0));
+            left = Hold("<", new Vector2(90, 102), new Vector2(0, 0));
+            right = Hold(">", new Vector2(235, 102), new Vector2(0, 0));
             flip = Hold("ПОЛЮС", new Vector2(-240, 102), new Vector2(1, 0));
             jump = Hold("ПРЫЖОК", new Vector2(-90, 102), new Vector2(1, 0));
             gravityText = Text(hud, "ГРАВИТАЦИЯ ↓", new Vector2(0, 83), new Vector2(560, 45), 22, PolyusArt.Cyan, TextAnchor.MiddleCenter, new Vector2(.5f, 0));
@@ -155,7 +155,7 @@ namespace Polyus
             bg.raycastTarget = true;
             Image(bg.transform, "Ring", Vector2.zero, new Vector2(108, 108), new Color(.15f, .48f, .58f, .7f), art.Disc);
             Image(bg.transform, "Inner", Vector2.zero, new Vector2(101, 101), new Color(.025f, .09f, .14f, 1), art.Disc);
-            Text(bg.transform, caption, Vector2.zero, new Vector2(115, 70), caption.Length > 2 ? 21 : 64, PolyusArt.Cyan);
+            Text(bg.transform, caption, Vector2.zero, new Vector2(115, 110), caption.Length > 2 ? 21 : 64, PolyusArt.Cyan);
             return bg.gameObject.AddComponent<PolyusControl>();
         }
         private void UpdateSafeArea()
@@ -222,7 +222,7 @@ namespace Polyus
             Button(page, "ГЕРОЙ", new Vector2(-430, -225), new Vector2(200, 68), ShowInventory);
             Button(page, "ПРОПУСК", new Vector2(-220, -225), new Vector2(200, 68), ShowPass);
             Button(page, services.Lootboxes.CanOpenDaily ? "ЕЖЕДНЕВНЫЙ СУНДУК · ЗА РЕКЛАМУ" : "СУНДУК ПОЛУЧЕН · ДО ЗАВТРА", new Vector2(-430, -320), new Vector2(620, 70), DailyChest, false, services.Lootboxes.CanOpenDaily);
-            Text(page, "ДЕМО 0.2  ·  ТЕСТОВЫЕ ПОКУПКИ БЕЗ СПИСАНИЙ", new Vector2(-250, -420), new Vector2(1000, 35), 20, muted);
+            Text(page, "ДЕМО " + PolyusRunRules.DemoVersion + "  ·  ТЕСТОВЫЕ ПОКУПКИ БЕЗ СПИСАНИЙ", new Vector2(-250, -420), new Vector2(1000, 35), 20, muted);
             Button(page, game.Audio.Muted ? "ЗВУК: ВЫКЛ" : "ЗВУК: ВКЛ", new Vector2(635, -390), new Vector2(250, 55), () => { game.Audio.ToggleMute(); ShowHome(); });
         }
         private RectTransform Card(string title, Vector2 position, Color accent)

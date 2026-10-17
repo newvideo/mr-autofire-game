@@ -92,6 +92,13 @@ static class Program
             Require(PolyusRunRules.RoomCount == 3);
             Require(PolyusRunRules.EnemyCount(0) == 4 && PolyusRunRules.EnemyCount(1) == 5 && PolyusRunRules.EnemyCount(2) == 1);
         });
+        Test("Movement traverses a sector in two seconds and jump reaches the first platform", () =>
+        {
+            double crossingSeconds = 20.0 / PolyusRunRules.MoveSpeed;
+            Require(crossingSeconds >= 1.7 && crossingSeconds <= 2.2);
+            double jumpRise = Math.Pow(PolyusRunRules.JumpSpeed, 2) / (2 * 9.81 * PolyusRunRules.GravityScale);
+            Require(jumpRise > 2.9 && jumpRise < 3.8);
+        });
         Test("Swept projectile collision handles fast shots and zero distance", () =>
         {
             Require(PolyusRunRules.SegmentDistance(0, 0, 10, 0, 5, .2) < .21);
