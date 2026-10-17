@@ -1,0 +1,5 @@
+{
+    "name": "Polyus.Tests.PlayMode",
+    "references": ["Polyus.Game", "Unity.ugui"],
+    "optionalUnityReferences": ["TestAssemblies"]
+}

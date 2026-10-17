@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Program.cs" />
+    <Compile Include="../../Assets/Polyus/Runtime/PolyusRunRules.cs" Link="PolyusRunRules.cs" />
+    <Compile Include="../../Assets/Scripts/Monetization/EconomyState.cs" Link="EconomyState.cs" />
+    <Compile Include="../../Assets/Scripts/Monetization/MonetizationRules.cs" Link="MonetizationRules.cs" />
+  </ItemGroup>
+</Project>

@@ -40,7 +40,7 @@ namespace Polyus.Monetization
         {
             economy = wallet;
             // A release build cannot accidentally expose simulated purchases.
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
             provider = new SimulatedStoreProvider();
 #endif
         }

@@ -4,8 +4,6 @@ using UnityEngine;
 
 namespace Polyus.Monetization
 {
-    public enum RewardedAdResult { Completed, Cancelled, Failed }
-
     // Replace the simulator with an adapter to Unity Ads/LevelPlay.
     // Completed must come from the SDK reward callback, never from ad close alone.
     public interface IRewardedAdsProvider
@@ -80,12 +78,14 @@ namespace Polyus.Monetization
                     if (!next) break;
                     yield return current;
                 }
-                (operation as IDisposable)?.Dispose();
+                try { (operation as IDisposable)?.Dispose(); }
+                catch (Exception error) { outcome = RewardedAdResult.Failed; Debug.LogException(error); }
             }
             IsShowing = false;
             try
             {
-                if (reported && outcome == RewardedAdResult.Completed) reward();
+                var request = new RewardedRequest();
+                request.Resolve(reported ? outcome : RewardedAdResult.Failed, reward);
             }
             finally { finished?.Invoke(outcome); }
         }

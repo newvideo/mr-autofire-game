@@ -29,11 +29,7 @@ namespace Polyus.Monetization
         };
 
         // Displayed odds: Common 70%, Rare 25%, Epic 5%.
-        public static ItemRarity RarityForRoll(int roll)
-        {
-            if (roll < 0 || roll >= 100) throw new ArgumentOutOfRangeException(nameof(roll));
-            return roll < 70 ? ItemRarity.Common : roll < 95 ? ItemRarity.Rare : ItemRarity.Epic;
-        }
+        public static ItemRarity RarityForRoll(int roll) => MonetizationRules.RarityForRoll(roll);
 
         public bool TryBuy(out EquipmentItem item)
         {

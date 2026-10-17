@@ -18,11 +18,9 @@ namespace Polyus.Monetization
             economy.Save();
         }
 
-        private static string RewardId(int tier, bool premium) => $"pass:prototype:v1:{tier}:{premium}";
+        private static string RewardId(int tier, bool premium) => MonetizationRules.PassRewardId(tier, premium);
         public bool IsClaimed(int tier, bool premium) => economy.State.rewardIds.Contains(RewardId(tier, premium));
-        public static bool CanClaimReward(EconomyState state, int tier, bool premium) => tier >= 1
-            && tier <= TierCount && state.battlePassXp / XpPerTier >= tier
-            && (!premium || state.premiumPass) && !state.rewardIds.Contains(RewardId(tier, premium));
+        public static bool CanClaimReward(EconomyState state, int tier, bool premium) => MonetizationRules.CanClaimPass(state, tier, premium);
         public bool CanClaim(int tier, bool premium) => CanClaimReward(economy.State, tier, premium);
 
         public bool Claim(int tier, bool premium)

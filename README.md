@@ -1,64 +1,92 @@
-# Polyus — gravity platformer prototype
+# ПОЛЮС · игровая демоверсия 0.2
 
-Unity **6000.6.3f1**, Universal 2D, Input System **1.20.0**.
+Оригинальный мобильный sci-fi платформер для **Unity 6000.6.3f1 / Universal 2D**.
+Игрок переключает гравитацию, проходит три боевые комнаты, выбирает усиления
+и сражается со стражем станции. Это небольшая игровая демоверсия, а не релиз
+для магазинов. Реальные платежи и рекламные сети ещё не подключены.
 
-## Run in Unity
+## Установка одним пакетом в существующий проект
 
-1. Open this repository folder in Unity Hub using the pinned editor version.
-2. Wait for package import and script compilation. Check Console for errors.
-3. Choose **Polyus → Create or open prototype** in the top menu.
-4. Save any pending scene changes when Unity asks. The command creates
-   `Assets/Scenes/PolyusPrototype.unity` if absent, or opens the existing scene.
-   It does not overwrite `Game.unity` or `SampleScene.unity`.
-5. Set the Game view to **16:9**, then press **Play**.
+1. Скачайте `Releases/Polyus-Demo-0.2.unitypackage` из этой ветки GitHub.
+2. Остановите Play в Unity. Выберите **Assets → Import Package → Custom Package**.
+3. Выберите скачанный пакет и нажмите **Import**. Оставьте все его файлы отмеченными.
+4. После компиляции откроется приветственное окно. Нажмите **ОТКРЫТЬ ИГРУ**, затем **▶ Play**.
+5. В главном меню нажмите **НАЧАТЬ ЗАБЕГ**.
 
-The first Play opens the prototype menu. Click **Play / Resume** to start.
-The room, sprites and interface are generated at runtime. A mostly empty scene
-before Play is expected. These are simple colored shapes, not final artwork.
-No downloaded art, external services, secrets or paid assets are required.
+Открыть сцену повторно: **Polyus → Открыть демоверсию**.
+Она уже включена в пакет: `Assets/Polyus/Scenes/PolyusDemo.unity`.
+Ручное создание объектов и настройка ссылок в Inspector не требуются.
+Пакет обновляет предыдущие скрипты Polyus по сохранённым GUID, включает графику,
+звук и тесты. Сцены пользователя `Game` / `SampleScene` и ProjectSettings
+при импорте пакета не заменяются. Перед обновлением своего проекта сохраните копию.
 
-## Controls
+Для нового проекта можно скачать ZIP всей ветки, распаковать и добавить папку
+с `Assets`, `Packages`, `ProjectSettings` через **Unity Hub → Add project from disk**.
+Не создавайте новый пустой проект поверх скачанного.
 
-| Action | Keyboard | On-screen |
+## Что входит
+
+- Иллюстрированный космонавт, дроны, отдельный босс и орбитальная станция.
+- Три комнаты с разным расположением платформ, переходы через портал справа.
+- Автоприцеливание по видимым целям, блокирование снарядов платформами,
+  прыжок с пола и потолка, смена гравитации с перезарядкой.
+- Выбор одного из трёх усилений между комнатами, бой с боссом и экран победы.
+- Энергетические снаряды, вспышки, частицы, цифры урона, монеты, встряска камеры.
+- Семь оригинальных звуковых ресурсов, включая фоновую музыку; отключение звука.
+- Единый Canvas: русские главное меню, HUD, пауза, магазин, инвентарь,
+  пропуск и диалоги. Игровой HUD скрывается за страницами меню.
+- Экранные кнопки для нескольких пальцев и клавиатура для редактора.
+- Золото и кристаллы, сохранение, экипировка оружия и брони с реальными бонусами
+  в следующем забеге, сундуки, пять уровней боевого пропуска.
+- Ежедневный рекламный сундук, одно возрождение с 50% HP за забег,
+  симуляция рекламы и покупок. Отмена не выдаёт награду.
+
+## Управление
+
+| Действие | Клавиатура | Телефон |
 | --- | --- | --- |
-| Move | A / D or left / right arrows | Hold < / > |
-| Jump when grounded | Space | JUMP |
-| Reverse gravity | G | FLIP |
-| Pause / resume | Escape | II |
-| Restart room | R | RETRY |
+| Движение | A / D, стрелки | Удерживать ‹ / › |
+| Прыжок | Пробел | ПРЫЖОК |
+| Смена гравитации | G | ПОЛЮС |
+| Пауза | Escape | II |
 
-Shooting and aiming are automatic when a drone is in range and visible.
-Platforms block shots. Eliminate four drones to win. The hero has 100 HP,
-takes 20 damage per hit, and has one second of invulnerability after damage. FLIP has a
-0.35-second cooldown. Jump pushes away from the current floor or ceiling.
-Leaving the app pauses the prototype; resume using II.
+После уничтожения всех дронов идите к светящемуся порталу **справа внизу**.
+В третьей комнате нужно победить босса. Оружие стреляет автоматически.
 
-## Manual acceptance checks
+## Архитектура и проверки
 
-Unity Editor is not installed in the cloud workspace. Runtime compilation,
-playability, rendering and device builds must be checked in Unity; they are
-not claimed as tested by the cloud changes.
+- `Assets/Polyus/Runtime`: оркестратор забега, графика, звук, UI, чистые правила.
+- `Assets/Scripts/Monetization`: экономика и заменяемые адаптеры монетизации.
+- `Assets/Polyus/Resources/Polyus`: включённые в пакет изображения и аудио.
+- `Assets/Tests`: EditMode-проверки экономики и PlayMode-проверка загрузки,
+  ресурсов, паузы и изменения физической гравитации.
 
-- Start the generated scene: room, cyan hero, four orange drones and HUD appear.
-- Move both directions. The hero stands on platforms and cannot leave the walls.
-- Jump from the floor, then FLIP and land on the ceiling. Jump works there too.
-- Shoot drones automatically with clear line of sight. Solid platforms block fire.
-- Take a hit: HP drops by 20, followed by a brief flashing invulnerability period.
-- Defeat all four drones: ROOM CLEARED appears; lose all HP: TRY AGAIN appears.
-- Pause: movement, drone motion and shots stop. Resume and RETRY work repeatedly.
-- Hold movement with one finger while tapping JUMP / FLIP with another on a device.
+В облаке выполнены **11 C#-проверок реальных правил**: повторные транзакции,
+повторные награды, стоимость сундуков, вероятности, пропуск, условия возрождения,
+награды рекламы, экипировка и непрерывное обнаружение попаданий.
+Команда с .NET 8 SDK: `python Tools/validate_core.py`.
+Также проверяются синтаксис C#, JSON сборок, GUID, ссылки сцены и содержимое пакета.
 
-## Android later
+**Редактор Unity в облаке отсутствует.** Компиляция всего Unity-проекта,
+Unity Test Runner, отрисовка и сборка на устройстве здесь не проверены.
+Для них откройте **Window → General → Test Runner** и выполните EditMode / PlayMode.
+Чистые C#-проверки не заменяют эти проверки.
 
-Install Android Build Support, SDK & NDK Tools, and OpenJDK through Unity Hub.
-In File → Build Profiles, select Android and add `PolyusPrototype.unity` to
-the scene list. Set landscape orientation in Player Settings, then build to
-a connected test device. Store SDK integration, audio and production artwork
-are not included. See the monetization guide for the simulated economy.
+## Android и дальнейшая публикация
 
-## Repository
+В Unity Hub нужны Android Build Support, Android SDK & NDK Tools и OpenJDK.
+В **File → Build Profiles** выберите Android и добавьте `PolyusDemo.unity`
+первой сценой (в ZIP проекта она уже первая). Сделайте Development Build
+для проверки на устройстве. На мобильном устройстве игра выбирает горизонтальную
+ориентацию. Код не содержит подписей приложения, аккаунтов магазинов или ключей.
 
-Keep `Assets` (including `.meta` files), `Packages`, and `ProjectSettings`
-under version control. `.gitignore` excludes Unity caches and local IDE files.
-Use the existing checkout; cloud tasks are already isolated and do not need
-additional Git worktrees. Do not copy a later version over unsaved local work.
+Для публикации ещё нужны интеграция и проверка реальных SDK/покупок, серверная
+экономика, тестирование на устройствах, оптимизация, магазинные материалы
+и подпись сборок. Иллюстрации здесь статические с программной анимацией;
+покадровые/скелетные анимации персонажа не включены.
+
+## Обслуживание
+
+Стабильные `.meta` включены. Unity-кэши и локальные IDE-файлы исключены.
+Используйте существующий checkout: облачные задачи уже изолированы и не требуют
+Git worktree. Пересобрать пакет: `python Tools/package_unity.py`.

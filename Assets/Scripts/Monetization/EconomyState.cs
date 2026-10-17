@@ -22,6 +22,8 @@ namespace Polyus.Monetization
         public int crystals;
         public int battlePassXp;
         public bool premiumPass;
+        public string equippedWeaponId;
+        public string equippedArmorId;
         public List<EquipmentItem> inventory = new List<EquipmentItem>();
         public List<string> rewardIds = new List<string>();
         public List<string> transactionIds = new List<string>();

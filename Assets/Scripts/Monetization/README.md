@@ -1,86 +1,72 @@
-# Prototype hybrid monetization
+# Hybrid monetization services
 
-## Architecture
+`MonetizationRoot` is a persistent composition root. It has no rendering logic.
+`PolyusUI` owns the single Canvas, pages and blocking dialogs; `PolyusPrototype`
+owns the run and explicit phases. Services are wired automatically on Play.
 
-`MonetizationRoot` creates persistent services and a disposable IMGUI menu.
-The prototype attaches to it on Play. There is no manual Inspector wiring.
+## Economy and progression
 
-- `AdsManager`: one rewarded request at a time; only Completed grants the
-  callback. Cancelled/failed ads grant nothing. The five-second simulator is
-  replaced through `SetProvider(IRewardedAdsProvider)`.
-- `EconomyManager` / `EconomyState`: gold, crystals, owned gear, pass XP,
-  reward identifiers and processed transactions. Local JSON uses PlayerPrefs
-  key `Polyus.Prototype.Economy.v1`. This is a prototype persistence mechanism,
-  not protection from cheating or device clock manipulation.
-- `IAPManager`: catalog IDs `polyus.crystals.100` (consumable) and
-  `polyus.pass.prototype` (non-consumable prototype pass). Only verified,
-  matching products and new transaction IDs can grant rewards. An explicit
-  confirmation precedes the test purchase. Simulation is enabled only in the
-  Editor / development builds; release builds require a store adapter.
-- `BattlePassManager`: five tiers at 100 XP per tier. Free reward is tier × 50
-  gold; premium reward is 20 crystals. Tracks are claimed independently once.
-  Buying premium later unlocks already-earned tiers. This is one permanent
-  prototype pass, not a seasonal subscription or auto-renewing product.
-- `LootboxManager`: a chest costs 50 crystals and grants one weapon or armor
-  with equal type probability. Rarity odds: Common 70%, Rare 25%, Epic 5%.
-  The odds are displayed before purchase. Gear is stored, not equipped yet.
+- `EconomyManager` loads/saves `EconomyState` using the existing PlayerPrefs key
+  `Polyus.Prototype.Economy.v1`; previous prototype balances remain compatible.
+- Each drone awards 25 gold + 25 pass XP with a run/kill reward ID. Completing
+  the campaign grants 150 extra gold, 5 crystals and 100 pass XP once per run.
+- `IAPManager`: `polyus.crystals.100` (consumable) and `polyus.pass.prototype`
+  (non-consumable permanent prototype pass). Explicit confirmation is required.
+  Simulation is enabled in Editor/debug builds only (`UNITY_EDITOR || DEBUG`).
+  An adapter must verify a matching product and stable transaction ID.
+- `BattlePassManager`: five tiers at 100 XP each. Free rewards: tier × 50 gold;
+  premium rewards: 20 crystals. Claims are independent and idempotent; buying
+  premium later unlocks earned tiers. No subscription/season reset is implied.
+- `LootboxManager`: 50 crystals buys one weapon or armor (50% type probability).
+  Displayed rarity odds: Common 70%, Rare 25%, Epic 5%. Spending and adding the
+  item are one state mutation and save. Inventory supports equipping one item
+  per slot. The next run uses its rarity's damage or maximum-health bonus.
 
-## Prototype hooks
+## Rewarded placements
 
-- Each defeated drone awards 25 gold + 25 pass XP with a run/kill reward ID.
-- At zero HP, an optional ad prompt offers exactly 50/100 HP once per run.
-  Cancelling an ad does not consume the revive. A completed revive keeps XP,
-  killed drones and rewards, clears projectiles and respawns at the start with
-  two seconds of protection. A later death cannot offer a second revive.
-- The main menu daily ad chest grants 100 gold and random gear once per UTC
-  calendar date. The entitlement is recorded only after completion. Production
-  daily time must come from a trusted backend.
-- Menus, purchase confirmation, revive prompt and ads block gameplay and touch
-  controls. Economy survives room retries; revive eligibility resets each run.
+`AdsManager.ShowRewarded(placement, reward, finished)` accepts one request at
+once. Only Completed grants; Cancelled/Failed do not. `RewardedRequest` ensures
+that a terminal result cannot subsequently change or grant a second reward.
+The default simulator waits five realtime seconds. Cancellation or loss of focus
+cancels it. Replace it with `SetProvider(IRewardedAdsProvider)`.
 
-## Connecting production SDKs (not implemented)
+- `daily_chest`: 100 gold + random equipment once per UTC calendar day. The
+  claim marker is written only after completion; retrying cannot duplicate it.
+- `revive`: one optional revival at 50% maximum HP per run. Cancelled/failed
+  ads do not consume it. A successful revive clears bullets, respawns safely
+  and grants two seconds of protection without resetting earned progress.
 
-No Unity IAP / Unity Ads / LevelPlay package or live store product is configured.
-The project currently uses explicit adapters, not real purchases or ad revenue.
+Pages, pending purchases and advertising block physics, enemies and controls.
+The UI never uses IMGUI or draws the shop over the HUD. State uses JSON locally;
+this is not a secure economy or protection against device clock manipulation.
 
-Implement `IRewardedAdsProvider`, including initialization, readiness/loading,
-failure handling, consent flow and the SDK's earned-reward event. Its Show
-enumerator must finish once a terminal SDK event arrives. Closing an ad is not
-proof of a reward. Inject the adapter into AdsManager before showing placements.
+## Production adapters (not included)
 
-Implement `IStoreProvider` using the selected Unity IAP API. Verify purchases
-on a trusted server before returning `Verified = true`, retain stable store
-transaction IDs, handle pending/cancelled purchases and restore owned pass
-entitlements. Complete/acknowledge the store transaction only after the server
-has durably recorded the grant. Move economy, RNG, claims and duplicate
-transaction checks to that server before accepting real money. The local
-PlayerPrefs ledger cannot provide production transaction durability, refunds,
-cross-device sync or purchase restoration.
+Implement `IRewardedAdsProvider` for Unity Ads / LevelPlay and use the actual
+SDK earned-reward event. Ad close alone is insufficient. Initialize/load ads,
+handle failures and consent, and finish the Show enumerator after a terminal
+SDK event. Provider callbacks must run on Unity's main thread.
 
-## Validation
+Implement `IStoreProvider` with Unity IAP. Validate receipts on a trusted server
+before returning Verified=true. Handle pending/failed/cancelled purchases,
+restore non-consumable ownership, and acknowledge transactions only after a
+durable server-side grant. The local ledger cannot provide production purchase
+durability, refunds, cross-device synchronization or restoration. Real product
+prices must come from the store, not hard-coded test labels.
 
-Open **Window → General → Test Runner → EditMode → Run All** for
-`Polyus.Tests.Editor`. These tests cover duplicate grants/transactions,
-insufficient funds, atomic chest grants, invalid amounts/overflow, pass locks,
-and rarity boundaries. Tests do not modify PlayerPrefs. They have not been
-executed in the cloud because Unity Editor is unavailable there.
+Before accepting real money, move the authoritative economy, random loot,
+daily time, claims and transaction deduplication to the backend. No real SDK,
+store catalog or server is configured in this demo.
 
-In Play mode verify these integration scenarios:
+## Checks
 
-1. On a clean save, balance is zero. Cancel the daily ad before five seconds:
-   no currency or item appears; finishing it grants one item and 100 gold.
-2. Retry the daily chest and restart Play: the same UTC day's reward stays
-   unavailable. Room restarts preserve balances and inventory.
-3. Buy a TEST crystal pack: cancel confirmation to receive nothing; confirm
-   to receive 100 crystals. Buy two gear chests: balance becomes zero and two
-   items are added. A third chest is disabled.
-4. Kill four drones: earn 100 gold and 100 XP. Claim free tier 1 once. The
-   premium track remains locked until the TEST pass purchase, then tier 1
-   premium grants 20 crystals once. Rebuying the pass is disabled.
-5. Die: cancel a revive ad to remain dead with the offer still available.
-   Complete it: HP becomes 50, existing progress remains. Die again: no offer.
-   A new run offers one revive again.
-6. While an ad or menu is open, movement/enemies stop. Backgrounding cancels
-   the simulated ad without a reward. Repeat on an Android development build.
-7. A non-development release build has no simulated purchases; it reports
-   that a store SDK is not connected until a real provider is installed.
+Core rules run without Unity via `python Tools/validate_core.py` (.NET 8 SDK).
+Unity tests are under Assets/Tests: EditMode checks economy, PlayMode checks
+art loading, exclusive HUD/page states, physics pause and gravity reversal.
+Unity tests are supplied but were not executed in the cloud.
+
+Manual integration cases: complete/cancel daily ads; retry same-day reward;
+confirm/cancel crystal purchase; open chests until insufficient funds; equip
+gear and begin a fresh run; claim both pass tracks once; cancel then complete
+revive; die again to confirm there is no second revival; background during an
+ad; retry runs and restart Play to confirm balances and inventory persist.
