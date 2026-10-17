@@ -1,0 +1,6 @@
+{
+    "name": "Polyus.Tests.Editor",
+    "references": ["Polyus.Game"],
+    "includePlatforms": ["Editor"],
+    "optionalUnityReferences": ["TestAssemblies"]
+}

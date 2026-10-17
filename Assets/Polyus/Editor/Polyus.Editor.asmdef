@@ -1,0 +1,5 @@
+{
+    "name": "Polyus.Editor",
+    "references": ["Polyus.Game"],
+    "includePlatforms": ["Editor"]
+}

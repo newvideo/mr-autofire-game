@@ -1,0 +1,4 @@
+{
+    "name": "Polyus.Game",
+    "references": ["Unity.InputSystem", "Unity.ugui"]
+}
