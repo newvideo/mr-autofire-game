@@ -59,7 +59,14 @@ namespace Polyus.Monetization
             if (productId == PremiumPass && economy.State.premiumPass) { finished?.Invoke(false, "Pass already owned."); return false; }
             IsBusy = true;
             bool settled = false;
-            provider.Buy(productId, receipt =>
+            Action<string> fail = reason =>
+            {
+                if (settled) return;
+                settled = true;
+                IsBusy = false;
+                finished?.Invoke(false, reason);
+            };
+            try { provider.Buy(productId, receipt =>
             {
                 if (settled) return;
                 settled = true;
@@ -70,13 +77,12 @@ namespace Polyus.Monetization
                     productId == CrystalPack ? 100 : 0, productId == PremiumPass);
                 if (granted) economy.Save();
                 finished?.Invoke(granted, granted ? "Purchase granted." : "Transaction already handled or invalid.");
-            }, reason =>
+            }, fail); }
+            catch (Exception error)
             {
-                if (settled) return;
-                settled = true;
-                IsBusy = false;
-                finished?.Invoke(false, reason);
-            });
+                Debug.LogException(error);
+                fail("Store adapter failed.");
+            }
             return true;
         }
     }
